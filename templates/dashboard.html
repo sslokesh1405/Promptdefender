@@ -1,0 +1,438 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - PromptDefender Pro{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <div class="stats-container">
+        <div class="stat-card">
+            <div class="stat-icon icon-blocked">
+                🚫
+            </div>
+            <div class="stat-info">
+                <h3 id="total-blocked">0</h3>
+                <p>Threats Blocked</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon icon-scanned">
+                🔍
+            </div>
+            <div class="stat-info">
+                <h3 id="total-scanned">0</h3>
+                <p>Prompts Scanned</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon icon-safe">
+                ✅
+            </div>
+            <div class="stat-info">
+                <h3 id="safe-rate">0%</h3>
+                <p>Safe Rate</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon icon-threats">
+                ⚠️
+            </div>
+            <div class="stat-info">
+                <h3 id="recent-attempts">0</h3>
+                <p>Recent Attempts</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">Prompt Analysis</h2>
+        </div>
+        <div class="analysis-container">
+            <div class="input-group">
+                <textarea id="prompt-input" placeholder="Enter a prompt to analyze for security threats..." rows="5"></textarea>
+                <button id="analyze-btn" class="btn btn-primary">Analyze Prompt</button>
+            </div>
+            
+            <div id="analysis-result" class="result-container" style="display: none;">
+                <div class="result-header">
+                    <h3>Analysis Result</h3>
+                    <div id="result-status" class="status-badge"></div>
+                </div>
+                <div id="result-details" class="result-details"></div>
+                <div id="confidence-meter" class="confidence-meter">
+                    <div class="meter-labels">
+                        <span>Safe</span>
+                        <span>Threat</span>
+                    </div>
+                    <div class="meter-bar">
+                        <div id="confidence-level" class="confidence-level"></div>
+                    </div>
+                    <div class="confidence-value">Confidence: <span id="confidence-value">0%</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-6">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Recent Activity</h2>
+                </div>
+                <div id="recent-activity" class="activity-list">
+                    <div class="activity-item">
+                        <div class="activity-icon">🔍</div>
+                        <div class="activity-details">
+                            <div class="activity-title">System Started</div>
+                            <div class="activity-time">Just now</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-6">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Top Threat Reasons</h2>
+                </div>
+                <div id="top-reasons" class="reasons-list">
+                    <div class="reason-item">
+                        <div class="reason-text">No threats detected yet</div>
+                        <div class="reason-count">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .dashboard {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .row {
+        display: flex;
+        gap: 20px;
+    }
+    
+    .col-6 {
+        flex: 1;
+    }
+    
+    .analysis-container {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    #prompt-input {
+        width: 100%;
+        padding: 15px;
+        border: 1px solid #e0e0e0;
+        border-radius: 5px;
+        font-size: 1rem;
+        resize: vertical;
+        transition: var(--transition);
+    }
+    
+    #prompt-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.2);
+    }
+    
+    .result-container {
+        border-radius: 5px;
+        padding: 20px;
+        background-color: #f8f9fa;
+    }
+    
+    .result-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+    
+    .result-details {
+        margin-bottom: 20px;
+    }
+    
+    .confidence-meter {
+        margin-top: 15px;
+    }
+    
+    .meter-labels {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+        font-size: 0.8rem;
+        color: var(--gray);
+    }
+    
+    .meter-bar {
+        height: 10px;
+        background-color: #e9ecef;
+        border-radius: 5px;
+        overflow: hidden;
+    }
+    
+    .confidence-level {
+        height: 100%;
+        background: linear-gradient(90deg, var(--success) 0%, var(--warning) 50%, var(--danger) 100%);
+        width: 0%;
+        transition: width 0.5s ease;
+    }
+    
+    .confidence-value {
+        text-align: center;
+        margin-top: 8px;
+        font-weight: 500;
+    }
+    
+    .activity-list, .reasons-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .activity-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .activity-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: rgba(67, 97, 238, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+    
+    .activity-details {
+        flex: 1;
+    }
+    
+    .activity-title {
+        font-weight: 500;
+    }
+    
+    .activity-time {
+        font-size: 0.8rem;
+        color: var(--gray);
+    }
+    
+    .reason-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .reason-text {
+        flex: 1;
+    }
+    
+    .reason-count {
+        background-color: var(--primary);
+        color: white;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 0.8rem;
+    }
+    
+    @media (max-width: 768px) {
+        .row {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Load initial stats
+        loadStats();
+        
+        // Set up analyze button
+        document.getElementById('analyze-btn').addEventListener('click', analyzePrompt);
+        
+        // Allow Enter key to trigger analysis (with Shift+Enter for new line)
+        document.getElementById('prompt-input').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                analyzePrompt();
+            }
+        });
+        
+        // Refresh stats every 10 seconds
+        setInterval(loadStats, 10000);
+    });
+    
+    async function loadStats() {
+        try {
+            const data = await apiCall('/api/stats');
+            
+            // Update stats
+            document.getElementById('total-blocked').textContent = data.total_blocked;
+            document.getElementById('total-scanned').textContent = data.total_scanned;
+            document.getElementById('recent-attempts').textContent = data.recent_attempts;
+            
+            // Calculate safe rate
+            const safeRate = data.total_scanned > 0 ? 
+                Math.round(((data.total_scanned - data.total_blocked) / data.total_scanned) * 100) : 0;
+            document.getElementById('safe-rate').textContent = `${safeRate}%`;
+            
+            // Update top reasons
+            updateTopReasons(data.top_reasons);
+            
+            // Update recent activity
+            updateRecentActivity(data.recent_attempts);
+        } catch (error) {
+            console.error('Failed to load stats:', error);
+        }
+    }
+    
+    function updateTopReasons(reasons) {
+        const container = document.getElementById('top-reasons');
+        
+        if (reasons.length === 0) {
+            container.innerHTML = `
+                <div class="reason-item">
+                    <div class="reason-text">No threats detected yet</div>
+                    <div class="reason-count">0</div>
+                </div>
+            `;
+            return;
+        }
+        
+        container.innerHTML = reasons.map(reason => `
+            <div class="reason-item">
+                <div class="reason-text">${reason[0]}</div>
+                <div class="reason-count">${reason[1]}</div>
+            </div>
+        `).join('');
+    }
+    
+    function updateRecentActivity(attempts) {
+        const container = document.getElementById('recent-activity');
+        
+        if (attempts.length === 0) {
+            container.innerHTML = `
+                <div class="activity-item">
+                    <div class="activity-icon">🔍</div>
+                    <div class="activity-details">
+                        <div class="activity-title">No recent activity</div>
+                        <div class="activity-time">-</div>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+        
+        // Show only the 5 most recent attempts
+        const recent = attempts.slice(-5).reverse();
+        
+        container.innerHTML = recent.map(attempt => {
+            const icon = attempt.blocked ? '🚫' : '✅';
+            const title = attempt.blocked ? 
+                `Blocked: ${attempt.prompt.substring(0, 30)}${attempt.prompt.length > 30 ? '...' : ''}` :
+                `Allowed: ${attempt.prompt.substring(0, 30)}${attempt.prompt.length > 30 ? '...' : ''}`;
+            
+            return `
+                <div class="activity-item">
+                    <div class="activity-icon">${icon}</div>
+                    <div class="activity-details">
+                        <div class="activity-title">${title}</div>
+                        <div class="activity-time">${formatDate(attempt.timestamp)}</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+    
+    async function analyzePrompt() {
+        const promptInput = document.getElementById('prompt-input');
+        const prompt = promptInput.value.trim();
+        
+        if (!prompt) {
+            showNotification('Please enter a prompt to analyze', 'warning');
+            return;
+        }
+        
+        const analyzeBtn = document.getElementById('analyze-btn');
+        analyzeBtn.textContent = 'Analyzing...';
+        analyzeBtn.disabled = true;
+        
+        try {
+            const result = await apiCall('/analyze', {
+                method: 'POST',
+                body: JSON.stringify({ prompt: prompt })
+            });
+            
+            displayAnalysisResult(result);
+            
+            // Refresh stats to get updated numbers
+            loadStats();
+        } catch (error) {
+            console.error('Analysis failed:', error);
+        } finally {
+            analyzeBtn.textContent = 'Analyze Prompt';
+            analyzeBtn.disabled = false;
+        }
+    }
+    
+    function displayAnalysisResult(result) {
+        const resultContainer = document.getElementById('analysis-result');
+        const statusBadge = document.getElementById('result-status');
+        const resultDetails = document.getElementById('result-details');
+        const confidenceLevel = document.getElementById('confidence-level');
+        const confidenceValue = document.getElementById('confidence-value');
+        
+        // Show result container
+        resultContainer.style.display = 'block';
+        
+        // Update status
+        if (result.blocked) {
+            statusBadge.className = 'status-badge status-blocked';
+            statusBadge.textContent = 'BLOCKED';
+            showNotification('Threat detected and blocked', 'error');
+        } else {
+            statusBadge.className = 'status-badge status-safe';
+            statusBadge.textContent = 'SAFE';
+            showNotification('Prompt is safe to process', 'success');
+        }
+        
+        // Update details
+        resultDetails.innerHTML = `
+            <p><strong>Response:</strong> ${result.response}</p>
+            ${result.reason ? `<p><strong>Reason:</strong> ${result.reason}</p>` : ''}
+            ${result.layer ? `<p><strong>Detection Layer:</strong> ${result.layer}</p>` : ''}
+        `;
+        
+        // Update confidence meter
+        const confidence = result.ml_confidence * 100;
+        confidenceLevel.style.width = `${confidence}%`;
+        confidenceValue.textContent = `${confidence.toFixed(1)}%`;
+    }
+</script>
+{% endblock %}

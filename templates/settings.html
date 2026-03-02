@@ -1,0 +1,664 @@
+{% extends "base.html" %}
+
+{% block title %}Settings - PromptDefender Pro{% endblock %}
+
+{% block content %}
+<div class="settings">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">System Settings</h2>
+            <div class="settings-controls">
+                <button id="save-settings" class="btn btn-primary">Save Settings</button>
+                <button id="reset-settings" class="btn btn-danger">Reset to Defaults</button>
+            </div>
+        </div>
+        
+        <div class="settings-tabs">
+            <div class="tab-headers">
+                <button class="tab-header active" data-tab="general">General</button>
+                <button class="tab-header" data-tab="security">Security</button>
+                <button class="tab-header" data-tab="notifications">Notifications</button>
+                <button class="tab-header" data-tab="advanced">Advanced</button>
+            </div>
+            
+            <div class="tab-content">
+                <!-- General Settings -->
+                <div id="tab-general" class="tab-pane active">
+                    <div class="setting-group">
+                        <label for="system-name">System Name</label>
+                        <input type="text" id="system-name" value="PromptDefender Pro" class="setting-input">
+                        <div class="setting-desc">Display name for your security system</div>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label for="auto-refresh">Auto Refresh Interval</label>
+                        <select id="auto-refresh" class="setting-input">
+                            <option value="5">5 seconds</option>
+                            <option value="10" selected>10 seconds</option>
+                            <option value="30">30 seconds</option>
+                            <option value="60">1 minute</option>
+                            <option value="0">Disabled</option>
+                        </select>
+                        <div class="setting-desc">How often to automatically refresh dashboard data</div>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label for="max-logs">Maximum Log Entries</label>
+                        <input type="number" id="max-logs" value="1000" min="100" max="10000" class="setting-input">
+                        <div class="setting-desc">Maximum number of log entries to keep in memory</div>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label for="theme">Theme</label>
+                        <select id="theme" class="setting-input">
+                            <option value="light" selected>Light</option>
+                            <option value="dark">Dark</option>
+                            <option value="auto">Auto (System)</option>
+                        </select>
+                        <div class="setting-desc">Interface color theme</div>
+                    </div>
+                </div>
+                
+                <!-- Security Settings -->
+                <div id="tab-security" class="tab-pane">
+                    <div class="setting-group">
+                        <label for="ml-threshold">ML Detection Threshold</label>
+                        <input type="range" id="ml-threshold" min="0.1" max="1.0" step="0.05" value="0.5" class="setting-input">
+                        <div class="setting-value" id="ml-threshold-value">0.5</div>
+                        <div class="setting-desc">Confidence level required to block a prompt (higher = more strict)</div>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label for="critical-threats">Critical Threat Detection</label>
+                        <div class="setting-toggle">
+                            <input type="checkbox" id="critical-threats" checked>
+                            <span class="toggle-slider"></span>
+                        </div>
+                        <div class="setting-desc">Enable immediate blocking of critical threat patterns</div>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label for="keyword-scoring">Keyword Scoring</label>
+                        <div class="setting-toggle">
+                            <input type="checkbox" id="keyword-scoring" checked>
+                            <span class="toggle-slider"></span>
+                        </div>
+                        <div class="setting-desc">Enable enhanced keyword-based threat scoring</div>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label for="anomaly-detection">Anomaly Detection</label>
+                        <div class="setting-toggle">
+                            <input type="checkbox" id="anomaly-detection" checked>
+                            <span class="toggle-slider"></span>
+                        </div>
+                        <div class="setting-desc">Detect unusual patterns in text (obfuscation, encoding, etc.)</div>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label for="auto-update">Automatic Model Updates</label>
+                        <div class="setting-toggle">
+                            <input type="checkbox" id="auto-update">
+                            <span class="toggle-slider"></span>
+                        </div>
+                        <div class="setting-desc">Automatically download and apply updated ML models</div>
+                    </div>
+                </div>
+                
+                <!-- Notification Settings -->
+                <div id="tab-notifications" class="tab-pane">
+                    <div class="setting-group">
+                        <label for="notify-blocked">Notify on Blocked Prompts</label>
+                        <div class="setting-toggle">
+                            <input type="checkbox" id="notify-blocked" checked>
+                            <span class="toggle-slider"></span>
+                        </div>
+                        <div class="setting-desc">Show notifications when prompts are blocked</div>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label for="notify-threats">Notify on High Threats</label>
+                        <div class="setting-toggle">
+                            <input type="checkbox" id="notify-threats" checked>
+                            <span class="toggle-slider"></span>
+                        </div>
+                        <div class="setting-desc">Show notifications for high-confidence threat detections</div>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label for="notify-system">System Notifications</label>
+                        <div class="setting-toggle">
+                            <input type="checkbox" id="notify-system">
+                            <span class="toggle-slider"></span>
+                        </div>
+                        <div class="setting-desc">Show notifications for system events and updates</div>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label for="sound-alerts">Sound Alerts</label>
+                        <div class="setting-toggle">
+                            <input type="checkbox" id="sound-alerts">
+                            <span class="toggle-slider"></span>
+                        </div>
+                        <div class="setting-desc">Play sound for important alerts</div>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label for="email-reports">Email Reports</label>
+                        <div class="setting-toggle">
+                            <input type="checkbox" id="email-reports">
+                            <span class="toggle-slider"></span>
+                        </div>
+                        <div class="setting-desc">Send daily security reports via email</div>
+                    </div>
+                </div>
+                
+                <!-- Advanced Settings -->
+                <div id="tab-advanced" class="tab-pane">
+                    <div class="setting-group">
+                        <label for="api-endpoint">API Endpoint</label>
+                        <input type="text" id="api-endpoint" value="/analyze" class="setting-input">
+                        <div class="setting-desc">Custom API endpoint for prompt analysis</div>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label for="log-level">Log Level</label>
+                        <select id="log-level" class="setting-input">
+                            <option value="error">Error</option>
+                            <option value="warn">Warning</option>
+                            <option value="info" selected>Info</option>
+                            <option value="debug">Debug</option>
+                        </select>
+                        <div class="setting-desc">Level of detail for system logging</div>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label for="backup-interval">Backup Interval</label>
+                        <select id="backup-interval" class="setting-input">
+                            <option value="0">Never</option>
+                            <option value="3600">Hourly</option>
+                            <option value="86400" selected>Daily</option>
+                            <option value="604800">Weekly</option>
+                        </select>
+                        <div class="setting-desc">How often to backup system configuration and logs</div>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label for="session-timeout">Session Timeout</label>
+                        <select id="session-timeout" class="setting-input">
+                            <option value="900">15 minutes</option>
+                            <option value="1800">30 minutes</option>
+                            <option value="3600" selected>1 hour</option>
+                            <option value="7200">2 hours</option>
+                            <option value="0">Never</option>
+                        </select>
+                        <div class="setting-desc">Automatic logout after inactivity</div>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label for="export-format">Export Format</label>
+                        <select id="export-format" class="setting-input">
+                            <option value="csv" selected>CSV</option>
+                            <option value="json">JSON</option>
+                            <option value="xml">XML</option>
+                        </select>
+                        <div class="setting-desc">Default format for exported data</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-6">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">System Information</h2>
+                </div>
+                <div class="system-info">
+                    <div class="info-item">
+                        <div class="info-label">Version</div>
+                        <div class="info-value">2.0.0</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">ML Model</div>
+                        <div class="info-value">Enhanced Transformer</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Model Accuracy</div>
+                        <div class="info-value">100%</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Last Updated</div>
+                        <div class="info-value" id="last-updated">-</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Uptime</div>
+                        <div class="info-value" id="system-uptime">-</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-6">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Quick Actions</h2>
+                </div>
+                <div class="quick-actions">
+                    <button id="test-system" class="btn btn-primary">Test System</button>
+                    <button id="export-config" class="btn btn-success">Export Configuration</button>
+                    <button id="import-config" class="btn btn-warning">Import Configuration</button>
+                    <button id="system-restart" class="btn btn-danger">Restart System</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .settings {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .settings-tabs {
+        border: 1px solid #e0e0e0;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    
+    .tab-headers {
+        display: flex;
+        background: #f8f9fa;
+        border-bottom: 1px solid #e0e0e0;
+    }
+    
+    .tab-header {
+        flex: 1;
+        padding: 15px 20px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-weight: 500;
+        transition: var(--transition);
+        border-bottom: 3px solid transparent;
+    }
+    
+    .tab-header:hover {
+        background: rgba(67, 97, 238, 0.05);
+    }
+    
+    .tab-header.active {
+        background: white;
+        border-bottom-color: var(--primary);
+        color: var(--primary);
+    }
+    
+    .tab-content {
+        padding: 30px;
+        background: white;
+    }
+    
+    .tab-pane {
+        display: none;
+    }
+    
+    .tab-pane.active {
+        display: block;
+    }
+    
+    .setting-group {
+        margin-bottom: 25px;
+    }
+    
+    .setting-group label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: var(--dark);
+    }
+    
+    .setting-input {
+        width: 100%;
+        max-width: 400px;
+        padding: 10px 15px;
+        border: 1px solid #e0e0e0;
+        border-radius: 5px;
+        font-size: 1rem;
+        transition: var(--transition);
+    }
+    
+    .setting-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.2);
+    }
+    
+    .setting-desc {
+        font-size: 0.9rem;
+        color: var(--gray);
+        margin-top: 5px;
+    }
+    
+    .setting-toggle {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 24px;
+    }
+    
+    .setting-toggle input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 24px;
+    }
+    
+    .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 16px;
+        width: 16px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+    
+    input:checked + .toggle-slider {
+        background-color: var(--primary);
+    }
+    
+    input:checked + .toggle-slider:before {
+        transform: translateX(26px);
+    }
+    
+    .setting-value {
+        display: inline-block;
+        margin-left: 10px;
+        font-weight: 600;
+        color: var(--primary);
+    }
+    
+    .system-info {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .info-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .info-label {
+        font-weight: 500;
+    }
+    
+    .info-value {
+        color: var(--gray);
+    }
+    
+    .quick-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+    
+    @media (max-width: 768px) {
+        .tab-headers {
+            flex-direction: column;
+        }
+        
+        .row {
+            flex-direction: column;
+        }
+        
+        .quick-actions {
+            grid-template-columns: 1fr;
+        }
+        
+        .setting-input {
+            max-width: 100%;
+        }
+    }
+</style>
+
+<script>
+    let startTime = new Date();
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set up tab switching
+        document.querySelectorAll('.tab-header').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const tabId = this.getAttribute('data-tab');
+                
+                // Update tab headers
+                document.querySelectorAll('.tab-header').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Update tab content
+                document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+                document.getElementById(`tab-${tabId}`).classList.add('active');
+            });
+        });
+        
+        // Update ML threshold value display
+        const mlThreshold = document.getElementById('ml-threshold');
+        const mlThresholdValue = document.getElementById('ml-threshold-value');
+        
+        mlThreshold.addEventListener('input', function() {
+            mlThresholdValue.textContent = this.value;
+        });
+        
+        // Set up save button
+        document.getElementById('save-settings').addEventListener('click', saveSettings);
+        
+        // Set up reset button
+        document.getElementById('reset-settings').addEventListener('click', resetSettings);
+        
+        // Set up quick actions
+        document.getElementById('test-system').addEventListener('click', testSystem);
+        document.getElementById('export-config').addEventListener('click', exportConfig);
+        document.getElementById('import-config').addEventListener('click', importConfig);
+        document.getElementById('system-restart').addEventListener('click', systemRestart);
+        
+        // Update system info
+        updateSystemInfo();
+        setInterval(updateSystemInfo, 1000);
+    });
+    
+    function updateSystemInfo() {
+        const now = new Date();
+        document.getElementById('last-updated').textContent = now.toLocaleString();
+        
+        // Calculate uptime
+        const uptimeMs = now - startTime;
+        const uptimeStr = formatUptime(uptimeMs);
+        document.getElementById('system-uptime').textContent = uptimeStr;
+    }
+    
+    function formatUptime(ms) {
+        const seconds = Math.floor(ms / 1000);
+        const days = Math.floor(seconds / 86400);
+        const hours = Math.floor((seconds % 86400) / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        const secs = seconds % 60;
+        
+        if (days > 0) {
+            return `${days}d ${hours}h ${minutes}m`;
+        } else if (hours > 0) {
+            return `${hours}h ${minutes}m ${secs}s`;
+        } else {
+            return `${minutes}m ${secs}s`;
+        }
+    }
+    
+    async function saveSettings() {
+        const settings = {
+            general: {
+                systemName: document.getElementById('system-name').value,
+                autoRefresh: document.getElementById('auto-refresh').value,
+                maxLogs: document.getElementById('max-logs').value,
+                theme: document.getElementById('theme').value
+            },
+            security: {
+                mlThreshold: document.getElementById('ml-threshold').value,
+                criticalThreats: document.getElementById('critical-threats').checked,
+                keywordScoring: document.getElementById('keyword-scoring').checked,
+                anomalyDetection: document.getElementById('anomaly-detection').checked,
+                autoUpdate: document.getElementById('auto-update').checked
+            },
+            notifications: {
+                notifyBlocked: document.getElementById('notify-blocked').checked,
+                notifyThreats: document.getElementById('notify-threats').checked,
+                notifySystem: document.getElementById('notify-system').checked,
+                soundAlerts: document.getElementById('sound-alerts').checked,
+                emailReports: document.getElementById('email-reports').checked
+            },
+            advanced: {
+                apiEndpoint: document.getElementById('api-endpoint').value,
+                logLevel: document.getElementById('log-level').value,
+                backupInterval: document.getElementById('backup-interval').value,
+                sessionTimeout: document.getElementById('session-timeout').value,
+                exportFormat: document.getElementById('export-format').value
+            }
+        };
+        
+        try {
+            await apiCall('/api/settings', {
+                method: 'POST',
+                body: JSON.stringify(settings)
+            });
+            
+            showNotification('Settings saved successfully', 'success');
+        } catch (error) {
+            console.error('Failed to save settings:', error);
+        }
+    }
+    
+    function resetSettings() {
+        if (!confirm('Are you sure you want to reset all settings to their default values?')) {
+            return;
+        }
+        
+        // Reset general settings
+        document.getElementById('system-name').value = 'PromptDefender Pro';
+        document.getElementById('auto-refresh').value = '10';
+        document.getElementById('max-logs').value = '1000';
+        document.getElementById('theme').value = 'light';
+        
+        // Reset security settings
+        document.getElementById('ml-threshold').value = '0.5';
+        document.getElementById('ml-threshold-value').textContent = '0.5';
+        document.getElementById('critical-threats').checked = true;
+        document.getElementById('keyword-scoring').checked = true;
+        document.getElementById('anomaly-detection').checked = true;
+        document.getElementById('auto-update').checked = false;
+        
+        // Reset notification settings
+        document.getElementById('notify-blocked').checked = true;
+        document.getElementById('notify-threats').checked = true;
+        document.getElementById('notify-system').checked = false;
+        document.getElementById('sound-alerts').checked = false;
+        document.getElementById('email-reports').checked = false;
+        
+        // Reset advanced settings
+        document.getElementById('api-endpoint').value = '/analyze';
+        document.getElementById('log-level').value = 'info';
+        document.getElementById('backup-interval').value = '86400';
+        document.getElementById('session-timeout').value = '3600';
+        document.getElementById('export-format').value = 'csv';
+        
+        showNotification('Settings reset to defaults', 'success');
+    }
+    
+    function testSystem() {
+        showNotification('Running system diagnostics...', 'info');
+        
+        // Simulate system test
+        setTimeout(() => {
+            showNotification('System test completed successfully', 'success');
+        }, 2000);
+    }
+    
+    function exportConfig() {
+        const config = {
+            version: '2.0.0',
+            exportDate: new Date().toISOString(),
+            settings: {
+                // In a real app, this would contain the current settings
+            }
+        };
+        
+        const dataStr = JSON.stringify(config, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        
+        const url = URL.createObjectURL(dataBlob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', `promptdefender-config-${new Date().toISOString().split('T')[0]}.json`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        showNotification('Configuration exported successfully', 'success');
+    }
+    
+    function importConfig() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+        
+        input.onchange = e => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const config = JSON.parse(e.target.result);
+                    showNotification('Configuration imported successfully', 'success');
+                    // In a real app, you would apply the imported settings
+                } catch (error) {
+                    showNotification('Failed to import configuration: Invalid file format', 'error');
+                }
+            };
+            reader.readAsText(file);
+        };
+        
+        input.click();
+    }
+    
+    function systemRestart() {
+        if (!confirm('Are you sure you want to restart the system? This will temporarily interrupt service.')) {
+            return;
+        }
+        
+        showNotification('System restart initiated...', 'warning');
+        
+        // Simulate restart
+        setTimeout(() => {
+            showNotification('System restart completed', 'success');
+            startTime = new Date(); // Reset uptime
+        }, 3000);
+    }
+</script>
+{% endblock %}

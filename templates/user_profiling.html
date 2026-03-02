@@ -1,0 +1,561 @@
+{% extends "base.html" %}
+
+{% block title %}User Profiling - PromptDefender Pro{% endblock %}
+
+{% block content %}
+<div class="user-profiling">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">User Behavior Analysis</h2>
+            <div class="profile-controls">
+                <button id="refresh-profiles" class="btn btn-primary">Refresh</button>
+            </div>
+        </div>
+        <div class="profiles-container">
+            <div class="profiles-list">
+                <div class="profile-header">
+                    <h3>User Profiles</h3>
+                </div>
+                <div id="profiles" class="profiles">
+                    <div class="profile-item active" data-user="default">
+                        <div class="profile-avatar">👤</div>
+                        <div class="profile-info">
+                            <div class="profile-name">Default User</div>
+                            <div class="profile-risk risk-low">Low Risk</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="profile-details">
+                <div id="profile-detail-default" class="profile-detail active">
+                    <div class="detail-header">
+                        <div class="user-avatar">👤</div>
+                        <div class="user-info">
+                            <h3>Default User</h3>
+                            <div class="user-risk risk-low">Low Risk Profile</div>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-stats">
+                        <div class="detail-stat">
+                            <div class="stat-value" id="user-total-requests">0</div>
+                            <div class="stat-label">Total Requests</div>
+                        </div>
+                        <div class="detail-stat">
+                            <div class="stat-value" id="user-blocked-requests">0</div>
+                            <div class="stat-label">Blocked Requests</div>
+                        </div>
+                        <div class="detail-stat">
+                            <div class="stat-value" id="user-threat-rate">0%</div>
+                            <div class="stat-label">Threat Rate</div>
+                        </div>
+                        <div class="detail-stat">
+                            <div class="stat-value" id="user-avg-confidence">0%</div>
+                            <div class="stat-label">Avg. Confidence</div>
+                        </div>
+                    </div>
+                    
+                    <div class="behavior-patterns">
+                        <h4>Behavior Patterns</h4>
+                        <div class="patterns-list">
+                            <div class="pattern-item">
+                                <div class="pattern-icon">📊</div>
+                                <div class="pattern-info">
+                                    <div class="pattern-title">Normal Activity Pattern</div>
+                                    <div class="pattern-desc">User follows typical interaction patterns</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="no-profile" class="profile-detail">
+                    <div class="no-profile-message">
+                        <h3>No User Selected</h3>
+                        <p>Select a user from the list to view their profile details and behavior patterns.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-6">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Risk Distribution</h2>
+                </div>
+                <div class="risk-chart">
+                    <canvas id="riskChart" width="400" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-6">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Activity Timeline</h2>
+                </div>
+                <div class="timeline-container">
+                    <div id="activity-timeline" class="activity-timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-time">Just now</div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">System Started</div>
+                                <div class="timeline-desc">User profiling initialized</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .user-profiling {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .profiles-container {
+        display: flex;
+        gap: 30px;
+    }
+    
+    .profiles-list {
+        width: 300px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+    }
+    
+    .profile-header {
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+    
+    .profile-header h3 {
+        color: var(--dark);
+    }
+    
+    .profiles {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .profile-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 15px;
+        background: white;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: var(--transition);
+        border: 2px solid transparent;
+    }
+    
+    .profile-item:hover {
+        border-color: rgba(67, 97, 238, 0.3);
+    }
+    
+    .profile-item.active {
+        border-color: var(--primary);
+        background: rgba(67, 97, 238, 0.05);
+    }
+    
+    .profile-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+    
+    .profile-info {
+        flex: 1;
+    }
+    
+    .profile-name {
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+    
+    .profile-risk {
+        font-size: 0.8rem;
+        padding: 2px 8px;
+        border-radius: 10px;
+        display: inline-block;
+    }
+    
+    .risk-low {
+        background: rgba(76, 201, 240, 0.2);
+        color: var(--success);
+    }
+    
+    .risk-medium {
+        background: rgba(248, 150, 30, 0.2);
+        color: var(--warning);
+    }
+    
+    .risk-high {
+        background: rgba(247, 37, 133, 0.2);
+        color: var(--danger);
+    }
+    
+    .profile-details {
+        flex: 1;
+    }
+    
+    .profile-detail {
+        display: none;
+    }
+    
+    .profile-detail.active {
+        display: block;
+    }
+    
+    .detail-header {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+    
+    .user-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+    }
+    
+    .user-info h3 {
+        margin-bottom: 5px;
+    }
+    
+    .user-risk {
+        font-size: 1rem;
+        padding: 5px 15px;
+        border-radius: 15px;
+    }
+    
+    .detail-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+        margin-bottom: 30px;
+    }
+    
+    .detail-stat {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+    }
+    
+    .detail-stat .stat-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+    
+    .detail-stat .stat-label {
+        color: var(--gray);
+        font-size: 0.9rem;
+    }
+    
+    .behavior-patterns h4 {
+        margin-bottom: 15px;
+        color: var(--dark);
+    }
+    
+    .patterns-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .pattern-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+    
+    .pattern-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+    
+    .pattern-info {
+        flex: 1;
+    }
+    
+    .pattern-title {
+        font-weight: 500;
+        margin-bottom: 5px;
+    }
+    
+    .pattern-desc {
+        font-size: 0.9rem;
+        color: var(--gray);
+    }
+    
+    .no-profile-message {
+        text-align: center;
+        padding: 50px 20px;
+        color: var(--gray);
+    }
+    
+    .risk-chart {
+        padding: 20px;
+    }
+    
+    .timeline-container {
+        padding: 20px;
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    
+    .activity-timeline {
+        position: relative;
+        padding-left: 30px;
+    }
+    
+    .activity-timeline::before {
+        content: '';
+        position: absolute;
+        left: 15px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #e0e0e0;
+    }
+    
+    .timeline-item {
+        position: relative;
+        margin-bottom: 20px;
+    }
+    
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -23px;
+        top: 5px;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--primary);
+    }
+    
+    .timeline-time {
+        font-size: 0.8rem;
+        color: var(--gray);
+        margin-bottom: 5px;
+    }
+    
+    .timeline-content {
+        background: #f8f9fa;
+        padding: 10px 15px;
+        border-radius: 5px;
+    }
+    
+    .timeline-title {
+        font-weight: 500;
+        margin-bottom: 5px;
+    }
+    
+    .timeline-desc {
+        font-size: 0.9rem;
+        color: var(--gray);
+    }
+    
+    @media (max-width: 992px) {
+        .profiles-container {
+            flex-direction: column;
+        }
+        
+        .profiles-list {
+            width: 100%;
+        }
+        
+        .detail-stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .row {
+            flex-direction: column;
+        }
+        
+        .detail-stats {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    let riskChart;
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('refresh-profiles').addEventListener('click', loadUserProfiles);
+        
+        // Initialize charts
+        initRiskChart();
+        
+        // Load initial data
+        loadUserProfiles();
+    });
+    
+    function initRiskChart() {
+        const ctx = document.getElementById('riskChart').getContext('2d');
+        
+        riskChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Low Risk', 'Medium Risk', 'High Risk'],
+                datasets: [{
+                    data: [70, 20, 10],
+                    backgroundColor: [
+                        'rgba(76, 201, 240, 0.8)',
+                        'rgba(248, 150, 30, 0.8)',
+                        'rgba(247, 37, 133, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(76, 201, 240, 1)',
+                        'rgba(248, 150, 30, 1)',
+                        'rgba(247, 37, 133, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    }
+    
+    async function loadUserProfiles() {
+        try {
+            // In a real application, you would fetch user profiles from an API
+            // For now, we'll simulate loading data
+            
+            // Simulate API call delay
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Update user stats based on logs
+            updateUserStats();
+            
+            showNotification('User profiles refreshed', 'success');
+        } catch (error) {
+            console.error('Failed to load user profiles:', error);
+        }
+    }
+    
+    async function updateUserStats() {
+        try {
+            const statsData = await apiCall('/api/stats');
+            const logsData = await apiCall('/api/logs');
+            
+            const totalRequests = logsData.logs.length;
+            const blockedRequests = logsData.logs.filter(log => log.blocked).length;
+            const threatRate = totalRequests > 0 ? Math.round((blockedRequests / totalRequests) * 100) : 0;
+            
+            // Calculate average confidence
+            let totalConfidence = 0;
+            logsData.logs.forEach(log => {
+                totalConfidence += log.ml_confidence;
+            });
+            const avgConfidence = totalRequests > 0 ? Math.round((totalConfidence / totalRequests) * 100) : 0;
+            
+            // Update UI
+            document.getElementById('user-total-requests').textContent = totalRequests;
+            document.getElementById('user-blocked-requests').textContent = blockedRequests;
+            document.getElementById('user-threat-rate').textContent = `${threatRate}%`;
+            document.getElementById('user-avg-confidence').textContent = `${avgConfidence}%`;
+            
+            // Update risk chart with simulated data
+            riskChart.data.datasets[0].data = [
+                Math.max(0, 100 - threatRate * 2), // Low risk
+                Math.min(30, threatRate * 1.5),    // Medium risk
+                Math.min(20, threatRate)           // High risk
+            ];
+            riskChart.update();
+            
+            // Update activity timeline
+            updateActivityTimeline(logsData.logs);
+            
+        } catch (error) {
+            console.error('Failed to update user stats:', error);
+        }
+    }
+    
+    function updateActivityTimeline(logs) {
+        const timeline = document.getElementById('activity-timeline');
+        
+        if (logs.length === 0) {
+            timeline.innerHTML = `
+                <div class="timeline-item">
+                    <div class="timeline-time">Just now</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">No Activity</div>
+                        <div class="timeline-desc">No user activity recorded yet</div>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+        
+        // Show only the 10 most recent activities
+        const recentLogs = logs.slice(-10).reverse();
+        
+        timeline.innerHTML = recentLogs.map(log => {
+            const time = formatDate(log.timestamp);
+            const title = log.blocked ? 
+                `Blocked: ${log.prompt.substring(0, 30)}${log.prompt.length > 30 ? '...' : ''}` :
+                `Allowed: ${log.prompt.substring(0, 30)}${log.prompt.length > 30 ? '...' : ''}`;
+            
+            return `
+                <div class="timeline-item">
+                    <div class="timeline-time">${time}</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">${title}</div>
+                        <div class="timeline-desc">${log.reason || 'No specific reason'}</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+</script>
+{% endblock %}

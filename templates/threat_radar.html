@@ -1,0 +1,454 @@
+{% extends "base.html" %}
+
+{% block title %}Threat Radar - PromptDefender Pro{% endblock %}
+
+{% block content %}
+<div class="threat-radar">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">Real-time Threat Radar</h2>
+            <div class="radar-controls">
+                <button id="start-radar" class="btn btn-primary">Start Radar</button>
+                <button id="stop-radar" class="btn btn-danger" disabled>Stop Radar</button>
+            </div>
+        </div>
+        <div class="radar-container">
+            <div class="radar-visualization">
+                <div class="radar-circle">
+                    <div class="radar-sweep"></div>
+                    <div id="threat-dots" class="threat-dots"></div>
+                </div>
+                <div class="radar-legend">
+                    <div class="legend-item">
+                        <div class="legend-color low-threat"></div>
+                        <span>Low Threat</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color medium-threat"></div>
+                        <span>Medium Threat</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color high-threat"></div>
+                        <span>High Threat</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="radar-stats">
+                <div class="radar-stat">
+                    <div class="stat-value" id="active-threats">0</div>
+                    <div class="stat-label">Active Threats</div>
+                </div>
+                <div class="radar-stat">
+                    <div class="stat-value" id="threat-level">LOW</div>
+                    <div class="stat-label">Threat Level</div>
+                </div>
+                <div class="radar-stat">
+                    <div class="stat-value" id="detection-rate">100%</div>
+                    <div class="stat-label">Detection Rate</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-6">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Live Threat Feed</h2>
+                </div>
+                <div id="threat-feed" class="threat-feed">
+                    <div class="feed-item">
+                        <div class="feed-time">System Started</div>
+                        <div class="feed-message">Threat radar is ready</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-6">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Threat Analysis</h2>
+                </div>
+                <div id="threat-analysis" class="threat-analysis">
+                    <p>Start the radar to see real-time threat analysis.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .threat-radar {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .radar-controls {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .radar-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 30px;
+    }
+    
+    .radar-visualization {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+    }
+    
+    .radar-circle {
+        width: 300px;
+        height: 300px;
+        border-radius: 50%;
+        border: 2px solid #e0e0e0;
+        position: relative;
+        overflow: hidden;
+        background: radial-gradient(circle, rgba(67, 97, 238, 0.05) 0%, rgba(67, 97, 238, 0.1) 100%);
+    }
+    
+    .radar-sweep {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: conic-gradient(transparent 0%, rgba(76, 201, 240, 0.3) 20%, transparent 40%);
+        animation: radarSweep 2s linear infinite;
+        opacity: 0;
+    }
+    
+    .radar-active .radar-sweep {
+        opacity: 1;
+    }
+    
+    .threat-dots {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+    }
+    
+    .threat-dot {
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        animation: pulse 2s infinite;
+    }
+    
+    .threat-low {
+        background-color: var(--success);
+        box-shadow: 0 0 10px var(--success);
+    }
+    
+    .threat-medium {
+        background-color: var(--warning);
+        box-shadow: 0 0 10px var(--warning);
+    }
+    
+    .threat-high {
+        background-color: var(--danger);
+        box-shadow: 0 0 10px var(--danger);
+    }
+    
+    .radar-legend {
+        display: flex;
+        gap: 20px;
+    }
+    
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .legend-color {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+    }
+    
+    .low-threat {
+        background-color: var(--success);
+    }
+    
+    .medium-threat {
+        background-color: var(--warning);
+    }
+    
+    .high-threat {
+        background-color: var(--danger);
+    }
+    
+    .radar-stats {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .radar-stat {
+        text-align: center;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        min-width: 150px;
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+    
+    .stat-label {
+        color: var(--gray);
+        font-size: 0.9rem;
+    }
+    
+    .threat-feed {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    
+    .feed-item {
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .feed-time {
+        font-size: 0.8rem;
+        color: var(--gray);
+        margin-bottom: 5px;
+    }
+    
+    .feed-message {
+        font-weight: 500;
+    }
+    
+    .feed-threat {
+        color: var(--danger);
+    }
+    
+    .feed-safe {
+        color: var(--success);
+    }
+    
+    .threat-analysis {
+        min-height: 200px;
+    }
+    
+    @keyframes radarSweep {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+    
+    @keyframes pulse {
+        0% {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+        50% {
+            transform: translate(-50%, -50%) scale(1.2);
+            opacity: 0.7;
+        }
+        100% {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+    }
+    
+    @media (max-width: 992px) {
+        .radar-container {
+            flex-direction: column;
+        }
+        
+        .radar-stats {
+            flex-direction: row;
+            justify-content: space-around;
+            width: 100%;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .row {
+            flex-direction: column;
+        }
+        
+        .radar-circle {
+            width: 250px;
+            height: 250px;
+        }
+    }
+</style>
+
+<script>
+    let radarInterval;
+    let threatCount = 0;
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('start-radar').addEventListener('click', startRadar);
+        document.getElementById('stop-radar').addEventListener('click', stopRadar);
+    });
+    
+    function startRadar() {
+        document.getElementById('start-radar').disabled = true;
+        document.getElementById('stop-radar').disabled = false;
+        
+        // Add active class to radar
+        document.querySelector('.radar-circle').classList.add('radar-active');
+        
+        // Start simulating threats
+        radarInterval = setInterval(simulateThreat, 2000);
+        
+        // Add initial feed entry
+        addToFeed('Threat radar activated', 'safe');
+        
+        // Update threat analysis
+        document.getElementById('threat-analysis').innerHTML = `
+            <div class="analysis-active">
+                <h3>Real-time Monitoring Active</h3>
+                <p>The system is now actively monitoring for potential threats in real-time.</p>
+                <ul>
+                    <li>Scanning for malicious patterns</li>
+                    <li>Analyzing prompt structures</li>
+                    <li>Monitoring for evasion techniques</li>
+                </ul>
+            </div>
+        `;
+    }
+    
+    function stopRadar() {
+        document.getElementById('start-radar').disabled = false;
+        document.getElementById('stop-radar').disabled = true;
+        
+        // Remove active class from radar
+        document.querySelector('.radar-circle').classList.remove('radar-active');
+        
+        // Clear interval
+        clearInterval(radarInterval);
+        
+        // Clear threat dots
+        document.getElementById('threat-dots').innerHTML = '';
+        
+        // Reset counters
+        threatCount = 0;
+        updateThreatStats();
+        
+        // Add feed entry
+        addToFeed('Threat radar deactivated', 'safe');
+        
+        // Update threat analysis
+        document.getElementById('threat-analysis').innerHTML = `
+            <p>Threat radar is currently inactive. Start the radar to begin real-time monitoring.</p>
+        `;
+    }
+    
+    function simulateThreat() {
+        // Randomly decide if we should create a threat (30% chance)
+        if (Math.random() < 0.3) {
+            createThreatDot();
+            threatCount++;
+        }
+        
+        updateThreatStats();
+    }
+    
+    function createThreatDot() {
+        const threatDots = document.getElementById('threat-dots');
+        
+        // Random position within the radar circle
+        const angle = Math.random() * 2 * Math.PI;
+        const distance = 30 + Math.random() * 120; // Distance from center (30-150px)
+        
+        const x = 150 + Math.cos(angle) * distance;
+        const y = 150 + Math.sin(angle) * distance;
+        
+        // Random threat level
+        const threatLevel = Math.random();
+        let threatClass, threatType;
+        
+        if (threatLevel < 0.6) {
+            threatClass = 'threat-low';
+            threatType = 'Low';
+        } else if (threatLevel < 0.9) {
+            threatClass = 'threat-medium';
+            threatType = 'Medium';
+        } else {
+            threatClass = 'threat-high';
+            threatType = 'High';
+        }
+        
+        // Create threat dot
+        const threatDot = document.createElement('div');
+        threatDot.className = `threat-dot ${threatClass}`;
+        threatDot.style.left = `${x}px`;
+        threatDot.style.top = `${y}px`;
+        
+        threatDots.appendChild(threatDot);
+        
+        // Add to feed
+        addToFeed(`Detected ${threatType.toLowerCase()} level threat pattern`, 'threat');
+        
+        // Remove dot after some time
+        setTimeout(() => {
+            if (threatDot.parentNode) {
+                threatDot.parentNode.removeChild(threatDot);
+                threatCount = Math.max(0, threatCount - 1);
+                updateThreatStats();
+            }
+        }, 10000);
+    }
+    
+    function updateThreatStats() {
+        document.getElementById('active-threats').textContent = threatCount;
+        
+        // Update threat level
+        let threatLevel = 'LOW';
+        if (threatCount > 5) threatLevel = 'HIGH';
+        else if (threatCount > 2) threatLevel = 'MEDIUM';
+        
+        document.getElementById('threat-level').textContent = threatLevel;
+        document.getElementById('threat-level').className = `stat-value ${
+            threatLevel === 'HIGH' ? 'status-blocked' : 
+            threatLevel === 'MEDIUM' ? 'status-warning' : 'status-safe'
+        }`;
+    }
+    
+    function addToFeed(message, type) {
+        const feed = document.getElementById('threat-feed');
+        const feedItem = document.createElement('div');
+        feedItem.className = 'feed-item';
+        
+        const now = new Date();
+        const timeString = now.toLocaleTimeString();
+        
+        feedItem.innerHTML = `
+            <div class="feed-time">${timeString}</div>
+            <div class="feed-message ${type === 'threat' ? 'feed-threat' : 'feed-safe'}">${message}</div>
+        `;
+        
+        feed.appendChild(feedItem);
+        
+        // Scroll to bottom
+        feed.scrollTop = feed.scrollHeight;
+        
+        // Limit feed items to 20
+        if (feed.children.length > 20) {
+            feed.removeChild(feed.children[0]);
+        }
+    }
+</script>
+{% endblock %}
