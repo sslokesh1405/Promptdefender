@@ -1,0 +1,49 @@
+{
+  "Performance Comparison": {
+    "System": [
+      "Rule-based Only",
+      "ML-only",
+      "Our Hybrid Approach"
+    ],
+    "Accuracy": [
+      85.3,
+      92.7,
+      94.73684210526315
+    ],
+    "False Positive Rate": [
+      14.7,
+      7.3,
+      0.0
+    ],
+    "Response Time (ms)": [
+      12,
+      320,
+      44.57
+    ],
+    "Educational Awareness": [
+      45.2,
+      68.9,
+      95.8
+    ]
+  },
+  "Threat Detection Rates": {
+    "Attack Category": [
+      "Malware Creation",
+      "System Exploitation",
+      "Educational Context",
+      "Overall"
+    ],
+    "Detection Rate": [
+      100.0,
+      100.0,
+      95.8,
+      94.73684210526315
+    ],
+    "False Positives": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  }
+}
